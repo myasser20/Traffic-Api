@@ -3,6 +3,7 @@ package com.traffic.trafficapi.controller;
 import com.traffic.trafficapi.domain.dto.CreateTrafficLight;
 import com.traffic.trafficapi.domain.dto.CreateTrafficLightDependency;
 import com.traffic.trafficapi.domain.dto.TrafficLightResponse;
+import com.traffic.trafficapi.domain.dto.UpdateTrafficLight;
 import com.traffic.trafficapi.domain.model.Status;
 import com.traffic.trafficapi.domain.model.TrafficLight;
 import com.traffic.trafficapi.mapper.TrafficMapper;
@@ -85,5 +86,33 @@ public class TrafficLightController {
 
     }
 
+    @PutMapping
+    public ResponseEntity<String> updateTrafficLight(@RequestBody UpdateTrafficLight updateTrafficLight) {
+
+        boolean updated = trafficLightService.updateTrafficLight(updateTrafficLight);
+        if (updated)
+            return ResponseEntity.ok("Update traffic light successful");
+        else
+            return ResponseEntity.badRequest().build();
+    }
+
+    @PutMapping("updateNeighboursToRedAndMainToGreen/{id}")
+    public ResponseEntity<String> updateNeighboursToRedAndMainToGreen(@PathVariable Long id) {
+
+        boolean updated = trafficLightService.updateNeighboursToRedAndMainToGreen(id);
+        if (updated)
+            return ResponseEntity.ok("Update neighbouring traffic light to red successfully and main to green");
+        else
+            return ResponseEntity.badRequest().build();
+    }
+
+    @PutMapping("updateNeighboursAndMainToLastStatus/{id}")
+    public ResponseEntity<String> updateNeighboursAndMainToLastStatus(@PathVariable Long id) {
+        boolean updated = trafficLightService.updateNeighboursAndMainToLastStatus(id);
+        if (updated)
+            return ResponseEntity.ok("Update neighbouring and main traffic light to last status successfully");
+        else
+            return ResponseEntity.badRequest().build();
+    }
 
 }

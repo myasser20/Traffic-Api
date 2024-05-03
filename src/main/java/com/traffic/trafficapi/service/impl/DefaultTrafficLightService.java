@@ -2,6 +2,7 @@ package com.traffic.trafficapi.service.impl;
 
 import com.traffic.trafficapi.domain.dto.CreateTrafficLight;
 import com.traffic.trafficapi.domain.dto.CreateTrafficLightDependency;
+import com.traffic.trafficapi.domain.dto.UpdateTrafficLight;
 import com.traffic.trafficapi.domain.model.Status;
 import com.traffic.trafficapi.domain.model.TrafficDependencies;
 import com.traffic.trafficapi.domain.model.TrafficLight;
@@ -116,5 +117,78 @@ public class DefaultTrafficLightService implements TrafficLightService {
             log.info("Neighbouring traffic light found successfully for id: {}", id);
         }
         return neighboursTrafficLights;
+    }
+
+    @Override
+    public boolean updateTrafficLight(UpdateTrafficLight updatedTrafficLight) {
+        Long trafficLightId = updatedTrafficLight.getTrafficLightId();
+        Optional<TrafficLight> optionalTrafficLight = trafficLightRepository.findById(trafficLightId);
+        if (optionalTrafficLight.isEmpty()) {
+            log.info("No traffic light found for id: {}", trafficLightId);
+            return false;
+        }
+
+        TrafficLight savedTrafficLight = optionalTrafficLight.get();
+        if (updatedTrafficLight.getLatitude() != null) {
+            savedTrafficLight.setLatitude(updatedTrafficLight.getLatitude());
+        }
+        if (updatedTrafficLight.getLongitude() != null) {
+            savedTrafficLight.setLongitude(updatedTrafficLight.getLongitude());
+        }
+        if (updatedTrafficLight.getStatus() != null) {
+            savedTrafficLight.setStatus(Status.valueOf(updatedTrafficLight.getStatus().toUpperCase()));
+        }
+        if (updatedTrafficLight.getLocationName() != null) {
+            savedTrafficLight.setLocationName(updatedTrafficLight.getLocationName());
+        }
+        trafficLightRepository.save(savedTrafficLight);
+        log.info("Traffic light updated successfully");
+        return true;
+    }
+
+    @Override
+    public boolean updateNeighboursToRedAndMainToGreen(Long id) {
+        List<TrafficLight>neighbouringTrafficLights = getNeighbouringTrafficLights(id);
+        Optional<TrafficLight> optionalMainTrafficLight = getTrafficLight(id);
+
+        if (neighbouringTrafficLights.isEmpty() ||
+                optionalMainTrafficLight.isEmpty())
+            return false;
+
+        for (TrafficLight trafficLight : neighbouringTrafficLights) {
+            trafficLight.setLastStatus(trafficLight.getStatus());
+            trafficLight.setStatus(Status.RED);
+            trafficLightRepository.save(trafficLight);
+            log.info("Neighbouring traffic light with id: {} updated to red successfully", trafficLight.getId());
+        }
+        TrafficLight mainTrafficLight = optionalMainTrafficLight.get();
+        mainTrafficLight.setLastStatus(mainTrafficLight.getStatus());
+        mainTrafficLight.setStatus(Status.GREEN);
+        trafficLightRepository.save(mainTrafficLight);
+        log.info("Main traffic light with id: {} updated to green successfully", mainTrafficLight.getId());
+        return true;
+    }
+
+    @Override
+    public boolean updateNeighboursAndMainToLastStatus(Long id) {
+        List<TrafficLight>neighbouringTrafficLights = getNeighbouringTrafficLights(id);
+        Optional<TrafficLight> optionalMainTrafficLight = getTrafficLight(id);
+
+        if (neighbouringTrafficLights.isEmpty() ||
+                optionalMainTrafficLight.isEmpty())
+            return false;
+
+        for (TrafficLight trafficLight : neighbouringTrafficLights) {
+            Status status = (trafficLight.getLastStatus() != null) ? trafficLight.getLastStatus() : Status.UNKNOWN;
+            trafficLight.setStatus(status);
+            trafficLightRepository.save(trafficLight);
+            log.info("Neighbouring traffic light with id: {} updated to the lastStatus: {} ", trafficLight.getId(), status.toString());
+        }
+
+        TrafficLight mainTrafficLight = optionalMainTrafficLight.get();
+        mainTrafficLight.setStatus(mainTrafficLight.getLastStatus());
+        trafficLightRepository.save(mainTrafficLight);
+        log.info("Main traffic light with id: {} updated to last status successfully", mainTrafficLight.getId());
+        return true;
     }
 }

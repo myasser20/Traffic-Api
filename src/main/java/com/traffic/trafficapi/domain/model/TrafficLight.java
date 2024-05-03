@@ -32,6 +32,8 @@ public class TrafficLight {
     public LocalDateTime updatedAt;
     @Enumerated(EnumType.STRING)
     private Status status;
+    @Enumerated(EnumType.STRING)
+    private Status lastStatus;
 
 
 }
