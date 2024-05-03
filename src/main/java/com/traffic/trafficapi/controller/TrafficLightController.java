@@ -96,7 +96,7 @@ public class TrafficLightController {
             return ResponseEntity.badRequest().build();
     }
 
-    @PutMapping("updateNeighboursToRedAndMainToGreen/{id}")
+    @GetMapping("updateNeighboursToRedAndMainToGreen/{id}")
     public ResponseEntity<String> updateNeighboursToRedAndMainToGreen(@PathVariable Long id) {
 
         boolean updated = trafficLightService.updateNeighboursToRedAndMainToGreen(id);
@@ -106,7 +106,7 @@ public class TrafficLightController {
             return ResponseEntity.badRequest().build();
     }
 
-    @PutMapping("updateNeighboursAndMainToLastStatus/{id}")
+    @GetMapping("updateNeighboursAndMainToLastStatus/{id}")
     public ResponseEntity<String> updateNeighboursAndMainToLastStatus(@PathVariable Long id) {
         boolean updated = trafficLightService.updateNeighboursAndMainToLastStatus(id);
         if (updated)
