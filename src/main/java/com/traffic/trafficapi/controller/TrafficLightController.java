@@ -44,6 +44,17 @@ public class TrafficLightController {
                 .collect(Collectors.toList()));
     }
 
+    @GetMapping("location/{location}")
+    public ResponseEntity<List<TrafficLightResponse>> getAllTrafficLightsByLocation(@PathVariable String location) {
+
+        List<TrafficLight> trafficLightList = trafficLightService.getTrafficLightsByLocationName(location);
+
+        return ResponseEntity.ok(trafficLightList
+                .stream()
+                .map(TrafficMapper.trafficModelToResponse())
+                .collect(Collectors.toList()));
+    }
+
     @GetMapping(path = "one/{id}")
     public ResponseEntity<TrafficLightResponse>  getTrafficLightById(@PathVariable Long id) {
         var trafficLight = trafficLightService.getTrafficLight(id);
